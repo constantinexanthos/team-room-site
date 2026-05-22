@@ -9,6 +9,11 @@ export default function HomePage() {
   return (
     <>
       <section className="border-b border-border/40 overflow-hidden relative">
+        {/* Aurora blobs — claude (amber) + codex (emerald), the two-mind palette */}
+        <div aria-hidden className="absolute inset-0 -z-20 overflow-hidden">
+          <div className="aurora-blob-claude absolute -top-1/4 left-1/4 h-[32rem] w-[32rem] rounded-full bg-amber-400/15 blur-3xl" />
+          <div className="aurora-blob-codex absolute -bottom-1/4 right-1/4 h-[32rem] w-[32rem] rounded-full bg-emerald-400/15 blur-3xl" />
+        </div>
         <div
           aria-hidden
           className="absolute inset-0 -z-10 [background-image:linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,black_40%,transparent_100%)]"

@@ -128,3 +128,24 @@
     @apply font-sans;
   }
 }
+
+/* Aurora blobs — inspired by 21st.dev's aurora-hero. Two slow-drifting
+   gradient blobs (amber for Claude, emerald for Codex) behind the hero. */
+@keyframes aurora-drift-1 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  25%      { transform: translate(20%, -15%) scale(1.15); }
+  50%      { transform: translate(-15%, 20%) scale(0.9); }
+  75%      { transform: translate(10%, -10%) scale(1.1); }
+}
+@keyframes aurora-drift-2 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  25%      { transform: translate(-20%, 15%) scale(1.1); }
+  50%      { transform: translate(15%, -20%) scale(0.85); }
+  75%      { transform: translate(-10%, 10%) scale(1.2); }
+}
+.aurora-blob-claude {
+  animation: aurora-drift-1 24s ease-in-out infinite;
+}
+.aurora-blob-codex {
+  animation: aurora-drift-2 28s ease-in-out infinite;
+}
