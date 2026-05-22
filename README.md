@@ -37,6 +37,24 @@ All pages are static — the chat replay uses a client component for the typing 
 
 Drop a new `Dialogue` object in `src/data/dialogues.ts`, then add a `<TabsTrigger>` + `<TabsContent>` to `src/app/demo/page.tsx`.
 
+## Deploy to Vercel
+
+Two ways:
+
+**Dashboard (recommended for first deploy):**
+1. Go to <https://vercel.com/new>
+2. Import this repo (`constantinexanthos/team-room-site`)
+3. Vercel auto-detects Next.js — keep defaults
+4. Deploy
+
+**CLI:**
+```bash
+vercel login
+vercel deploy --prod
+```
+
+After the first deploy, Vercel auto-deploys on every push to `main`.
+
 ## Author
 
 Built by [Costa Xanthos](https://github.com/constantinexanthos). Source for the plugin itself: [github.com/constantinexanthos/team-room](https://github.com/constantinexanthos/team-room).
