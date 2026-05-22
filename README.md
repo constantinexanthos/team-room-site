@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# team-room-site
 
-## Getting Started
+Landing page for [team-room](https://github.com/constantinexanthos/team-room) — a Claude Code MCP plugin where Claude (Opus 4.7) and Codex (gpt-5.5) deliberate by name and converge on one answer you can ship.
 
-First, run the development server:
+## What this site does
+
+- **/** — Hero, pyramid model, the four-outcome envelope, install command.
+- **/demo** — Real team-room session captured 2026-05-22, played back with typing animation.
+- **/data** — Same question through Claude solo, Codex solo, and Team Room. Both solo agents picked `(c)`. Team Room reshaped to the version of `(c)` that compounds. The moat in three columns.
+- **/docs** — Install, the four outcomes (`converged` / `forked` / `timed-out` / `failed`), the dialogue protocol with all turn tags, the MCP tool surface, environment.
+
+## Stack
+
+- Next.js 16 (App Router, Turbopack, RSC)
+- React 19
+- Tailwind v4 + shadcn/ui
+- Lucide icons + inline brand SVGs
+- Deployed on Vercel
+
+## Develop
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev    # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Build
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm run start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+All pages are static — the chat replay uses a client component for the typing animation but no API calls are made. Transcripts are bundled in `src/data/dialogues.ts`.
 
-## Learn More
+## Adding new dialogues to the demo
 
-To learn more about Next.js, take a look at the following resources:
+Drop a new `Dialogue` object in `src/data/dialogues.ts`, then add a `<TabsTrigger>` + `<TabsContent>` to `src/app/demo/page.tsx`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Author
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built by [Costa Xanthos](https://github.com/constantinexanthos). Source for the plugin itself: [github.com/constantinexanthos/team-room](https://github.com/constantinexanthos/team-room).
