@@ -15,6 +15,8 @@ export type Dialogue = {
   title: string;
   blurb: string;
   question: string;
+  /** Short, scannable rephrasing of the question for top-of-viewport display. */
+  display_question?: string;
   turns: Turn[];
   joint_read: string;
   outcome: "converged" | "forked" | "timed-out" | "failed";
@@ -36,6 +38,8 @@ export const TEAM_ROOM_DIALOGUE: Dialogue = {
   blurb:
     "Same question. Both models alone pick (c). Team Room finds the version of (c) that compounds.",
   question: AB_QUESTION,
+  display_question:
+    "What's the most defensible moat for an early-stage AI tools company?",
   outcome: "converged",
   closing_turn: 3,
   joint_read:
