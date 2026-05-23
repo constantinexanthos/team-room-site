@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { InstallSnippet } from "@/components/install-snippet";
 import { GithubIcon } from "@/components/icons";
+import { PixelRobot } from "@/components/pixel-robot";
 
 export const metadata = {
   title: "Docs — Team Room",
@@ -11,14 +12,15 @@ export const metadata = {
 export default function DocsPage() {
   return (
     <div className="min-h-dvh bg-white text-zinc-900">
-      <header className="border-b border-zinc-200">
-        <div className="mx-auto flex max-w-2xl items-center justify-between px-5 py-4 sm:px-6">
+      <header className="border-b-2 border-zinc-900">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-4 sm:px-8 sm:py-5">
           <Link
             href="/"
             aria-label="Team Room — home"
-            className="text-sm font-semibold tracking-tight text-zinc-900"
+            className="flex items-center gap-3 text-zinc-950"
           >
-            Team Room
+            <PixelRobot size={28} />
+            <span className="text-xl font-bold tracking-tight">Team Room</span>
           </Link>
           <nav className="flex items-center gap-5 text-xs tracking-[0.18em] text-zinc-500">
             <Link href="/" className="hover:text-zinc-900 transition-colors">
