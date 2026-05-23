@@ -2,6 +2,12 @@ import Link from "next/link";
 import { InstallSnippet } from "@/components/install-snippet";
 import { GithubIcon } from "@/components/icons";
 import { PixelRobot } from "@/components/pixel-robot";
+import { WalkingRobots } from "@/components/walking-robots";
+
+const INSTALL_STEPS = [
+  "/plugin marketplace add constantinexanthos/team-room",
+  "/plugin install team-room@team-room",
+];
 
 // Retro-gamer aesthetic. Wider container, chunky 2px borders, game-style
 // stat bars, two pixel robots (one per agent), an inside/outside view of
@@ -15,29 +21,34 @@ export default function HomePage() {
 
       <main className="mx-auto max-w-4xl px-5 sm:px-8">
         {/* ── HERO ──────────────────────────────────────────────── */}
-        <section className="pt-16 pb-20 sm:pt-24 sm:pb-24">
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-[auto_1fr] sm:items-start sm:gap-12">
-            {/* Two robots side by side, one per agent */}
-            <div className="flex shrink-0 items-end gap-4 sm:pt-1">
-              <RobotMascot agent="claude" />
-              <RobotMascot agent="chatgpt" />
-            </div>
+        <section className="pt-12 pb-16 sm:pt-16 sm:pb-20">
+          {/* The animated walking-robots scene — full width of the hero */}
+          <WalkingRobots />
 
-            <div>
-              <h1 className="text-5xl font-bold leading-[0.95] tracking-tight text-zinc-950 sm:text-6xl">
-                Team Room
-              </h1>
-              <p className="mt-5 text-lg leading-relaxed text-zinc-700 sm:text-xl">
-                A Claude Code plugin that puts{" "}
-                <Agent color="amber">Claude</Agent> and{" "}
-                <Agent color="emerald">ChatGPT</Agent> in one room. They
-                deliberate on hard questions together, and return one
-                structured brief.
-              </p>
-              <div className="mt-8">
-                <InstallSnippet />
-              </div>
+          <div className="mt-10 sm:mt-12">
+            <h1 className="text-5xl font-bold leading-[0.95] tracking-tight text-zinc-950 sm:text-6xl">
+              Team Room
+            </h1>
+            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-zinc-700 sm:text-xl">
+              A Claude Code plugin that puts{" "}
+              <Agent color="amber">Claude</Agent> and{" "}
+              <Agent color="emerald">ChatGPT</Agent> in one room. They
+              deliberate on hard questions together, and return one
+              structured brief.
+            </p>
+            <div className="mt-8">
+              <InstallSnippet commands={INSTALL_STEPS} />
             </div>
+            <p className="mt-3 text-xs text-zinc-500">
+              Two steps. Run both inside any Claude Code session.{" "}
+              <Link
+                href="/docs"
+                className="text-zinc-700 underline underline-offset-4 decoration-zinc-300 hover:decoration-zinc-700"
+              >
+                Full install guide
+              </Link>
+              .
+            </p>
           </div>
         </section>
 
@@ -294,11 +305,12 @@ reverts).`}
             Install
           </h2>
           <p className="mt-3 text-sm text-zinc-600">
-            From inside a Claude Code session. Requires{" "}
-            <Code>claude</Code> and <Code>codex</Code> CLIs on PATH.
+            Inside any Claude Code session, run these two slash commands.
+            First one adds the marketplace, second one installs the plugin.
+            Requires <Code>claude</Code> and <Code>codex</Code> CLIs on PATH.
           </p>
           <div className="mt-6">
-            <InstallSnippet />
+            <InstallSnippet commands={INSTALL_STEPS} />
           </div>
           <div className="mt-6 flex items-center gap-5 text-xs tracking-[0.18em] text-zinc-500">
             <Link
@@ -379,25 +391,6 @@ function SiteHeader() {
         </nav>
       </div>
     </header>
-  );
-}
-
-// ── Hero robot with name label ─────────────────────────────────────────
-
-function RobotMascot({ agent }: { agent: "claude" | "chatgpt" }) {
-  const color = agent === "claude" ? "text-amber-600" : "text-emerald-600";
-  const label = agent === "claude" ? "CLAUDE" : "CHATGPT";
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <span className="text-zinc-950">
-        <PixelRobot size={64} animated agent={agent} />
-      </span>
-      <span
-        className={`font-mono text-[9px] font-bold tracking-[0.22em] ${color}`}
-      >
-        {label}
-      </span>
-    </div>
   );
 }
 

@@ -3,6 +3,11 @@ import { InstallSnippet } from "@/components/install-snippet";
 import { GithubIcon } from "@/components/icons";
 import { PixelRobot } from "@/components/pixel-robot";
 
+const INSTALL_STEPS = [
+  "/plugin marketplace add constantinexanthos/team-room",
+  "/plugin install team-room@team-room",
+];
+
 export const metadata = {
   title: "Docs · Team Room",
   description:
@@ -51,13 +56,25 @@ export default function DocsPage() {
         </p>
 
         <Section title="Install">
-          <p>Inside a Claude Code session:</p>
+          <p>Two steps inside any Claude Code session:</p>
           <div className="my-4">
-            <InstallSnippet />
+            <InstallSnippet commands={INSTALL_STEPS} />
           </div>
-          <p>
-            Requires <Mono>claude</Mono> and <Mono>codex</Mono> CLIs on PATH.
-            Repo:{" "}
+          <ol className="mt-4 space-y-2 text-sm text-zinc-700">
+            <li>
+              <strong className="text-zinc-900">Step 1.</strong> Adds this
+              repo as a plugin marketplace in your Claude Code config.
+            </li>
+            <li>
+              <strong className="text-zinc-900">Step 2.</strong> Installs
+              the <Mono>team-room</Mono> plugin from the marketplace you
+              just added. Format is <Mono>plugin@marketplace</Mono>, which
+              is why the name appears twice.
+            </li>
+          </ol>
+          <p className="mt-4">
+            Requires <Mono>claude</Mono> CLI and <Mono>codex</Mono> CLI on
+            PATH (the plugin shells out to both). Repo:{" "}
             <a
               href="https://github.com/constantinexanthos/team-room"
               target="_blank"
@@ -121,32 +138,40 @@ team_room_ask({
             the primary artifact, with the full transcript in{" "}
             <Mono>messages</Mono> for expansion.
           </p>
-          <dl className="mt-6 divide-y-2 divide-zinc-200 border-y-2 border-zinc-200">
-            <Outcome
-              dot="bg-emerald-500"
+          <div className="mt-6 grid grid-cols-1 gap-0 border-2 border-zinc-900 sm:grid-cols-2">
+            <OutcomeCard
+              bar="bg-emerald-500"
+              icon="OK"
               name="converged"
               field="joint_read"
               desc="The team landed on a joint read for you. One to two sentences."
             />
-            <Outcome
-              dot="bg-amber-500"
+            <OutcomeCard
+              bar="bg-amber-500"
+              icon=" Y/N"
               name="forked"
               field="fork"
               desc="Explicit unresolved disagreement, mapped. Each agent's view plus the deciding evidence."
+              borderL
             />
-            <Outcome
-              dot="bg-sky-500"
+            <OutcomeCard
+              bar="bg-sky-500"
+              icon="..."
               name="timed-out"
               field="partial"
-              desc="Max turns reached. The last turn's content is preserved."
+              desc="Max turns reached. The last turn's content is preserved as partial progress."
+              borderT
             />
-            <Outcome
-              dot="bg-rose-500"
+            <OutcomeCard
+              bar="bg-rose-500"
+              icon="X"
               name="failed"
               field="error"
-              desc="An agent or orchestrator failure. One-line reason."
+              desc="An agent or orchestrator failure. One-line reason captured."
+              borderT
+              borderL
             />
-          </dl>
+          </div>
         </Section>
 
         <Section title="The dialogue protocol">
@@ -303,29 +328,45 @@ function Mono({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Outcome({
-  dot,
+// Retro outcome card. 2x2 grid, each card has a chunky colored bar at the
+// top, a pixel-style status icon, big bold name, mono field path, then desc.
+function OutcomeCard({
+  bar,
+  icon,
   name,
   field,
   desc,
+  borderL,
+  borderT,
 }: {
-  dot: string;
+  bar: string;
+  icon: string;
   name: string;
   field: string;
   desc: string;
+  borderL?: boolean;
+  borderT?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-[10rem_1fr] gap-6 py-4">
-      <dt className="flex flex-col items-start gap-1">
-        <div className="flex items-center gap-2.5">
-          <span className={`inline-block size-1.5 rounded-full ${dot}`} />
-          <span className="text-sm font-bold text-zinc-900">{name}</span>
+    <div
+      className={`relative bg-white ${borderT ? "border-t-2 border-zinc-900" : ""} ${borderL ? "sm:border-l-2 sm:border-zinc-900" : ""}`}
+    >
+      {/* Chunky color stripe at top */}
+      <div className={`h-2 ${bar}`} />
+      <div className="p-5">
+        <div className="flex items-baseline justify-between">
+          <span className="text-xl font-bold uppercase tracking-tight text-zinc-950">
+            {name}
+          </span>
+          <span className="font-mono text-[10px] font-bold tracking-[0.18em] text-zinc-400">
+            {icon}
+          </span>
         </div>
-        <span className="font-mono text-[10px] text-zinc-400">
+        <div className="mt-1 font-mono text-[11px] text-zinc-500">
           final_brief.{field}
-        </span>
-      </dt>
-      <dd className="text-sm text-zinc-600 leading-relaxed">{desc}</dd>
+        </div>
+        <p className="mt-3 text-sm leading-relaxed text-zinc-700">{desc}</p>
+      </div>
     </div>
   );
 }
