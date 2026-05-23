@@ -3,24 +3,31 @@
 import { useEffect, useRef, useState } from "react";
 import type { Dialogue } from "@/data/dialogues";
 import { Play, Pause, RotateCcw, Forward } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 /**
  * Plays back a recorded team-room session with typing-style animation.
  * Each turn streams in character-by-character at adjustable speed.
  * Showcases the room behavior without burning tokens on a live API call.
+ *
+ * Visual model: editorial transcript, not "terminal window." Mono is reserved
+ * for labels (turn tags, agent names) — body content is sans for readability.
  */
-export function ChatReplay({ dialogue }: { dialogue: Dialogue }) {
+export function ChatReplay({
+  dialogue,
+  compact = false,
+}: {
+  dialogue: Dialogue;
+  compact?: boolean;
+}) {
   const [turnIdx, setTurnIdx] = useState(0);
   const [streamed, setStreamed] = useState("");
   const [playing, setPlaying] = useState(true);
-  const [speed, setSpeed] = useState(8); // chars per tick
+  const [speed, setSpeed] = useState(12); // chars per tick
   const containerRef = useRef<HTMLDivElement>(null);
 
   const turn = dialogue.turns[turnIdx];
   const full = turn?.content ?? "";
 
-  // Stream the current turn's content; advance to next turn when done.
   useEffect(() => {
     if (!playing || !turn) return;
     if (streamed.length >= full.length) {
@@ -31,7 +38,7 @@ export function ChatReplay({ dialogue }: { dialogue: Dialogue }) {
         } else {
           setPlaying(false);
         }
-      }, 800);
+      }, 700);
       return () => clearTimeout(t);
     }
     const t = setTimeout(() => {
@@ -40,7 +47,6 @@ export function ChatReplay({ dialogue }: { dialogue: Dialogue }) {
     return () => clearTimeout(t);
   }, [playing, streamed, turn, full, speed, turnIdx, dialogue.turns.length]);
 
-  // Auto-scroll to keep the active turn visible.
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTo({
@@ -64,191 +70,236 @@ export function ChatReplay({ dialogue }: { dialogue: Dialogue }) {
     }
   };
 
-  const isDone = turnIdx === dialogue.turns.length - 1 && streamed.length >= full.length;
+  const isDone =
+    turnIdx === dialogue.turns.length - 1 && streamed.length >= full.length;
   const progress = Math.min(
     1,
     (turnIdx + streamed.length / Math.max(1, full.length)) / dialogue.turns.length
   );
 
+  const maxH = compact ? "max-h-[360px]" : "max-h-[520px]";
+
   return (
-    <div className="rounded-xl border border-border/60 bg-background/40 overflow-hidden shadow-2xl shadow-black/40">
-      {/* Header: terminal-style chrome */}
-      <div className="flex items-center justify-between border-b border-border/60 px-4 py-2.5 bg-background/60">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-full bg-rose-500/70" />
-            <span className="size-2.5 rounded-full bg-amber-400/70" />
-            <span className="size-2.5 rounded-full bg-emerald-500/70" />
-          </div>
-          <span className="ml-3 font-mono text-xs text-muted-foreground">
-            team_room_ask · {dialogue.id}
+    <div className="tr-replay-frame rounded-xl overflow-hidden">
+      {/* Header: editorial chrome — no traffic lights cliché. */}
+      <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <span
+            className="inline-flex items-center font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground"
+            aria-hidden
+          >
+            <span className="mr-2 inline-block h-px w-5 bg-amber-300/70" />
+            session
+            <span className="mx-2 inline-block h-px w-5 bg-emerald-300/70" />
+          </span>
+          <span className="truncate font-mono text-[11px] text-muted-foreground">
+            {dialogue.id}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Badge
-            variant="outline"
-            className="font-mono text-[10px] uppercase tracking-widest"
-          >
-            <span
-              className={`mr-1.5 inline-block size-1.5 rounded-full ${
-                isDone
-                  ? dialogue.outcome === "converged"
-                    ? "bg-emerald-400"
-                    : "bg-amber-400"
-                  : "bg-amber-400 animate-pulse"
-              }`}
-            />
+          <span
+            className={`inline-block size-1.5 rounded-full ${
+              isDone
+                ? dialogue.outcome === "converged"
+                  ? "bg-emerald-400 shadow-[0_0_8px] shadow-emerald-400/60"
+                  : "bg-amber-400 shadow-[0_0_8px] shadow-amber-400/60"
+                : "bg-amber-400 animate-pulse"
+            }`}
+          />
+          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-foreground/80">
             {isDone ? dialogue.outcome : "in flight"}
-          </Badge>
+          </span>
         </div>
       </div>
 
-      {/* Costa question (the prompt that opened the room) */}
-      <div className="border-b border-border/40 px-5 py-4 bg-muted/20">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            you
-          </span>
-          <span className="font-mono text-[10px] text-muted-foreground">
-            opened the room
-          </span>
+      {/* The opening question — set in serif so it reads like a letter prompt */}
+      <div className="border-b border-foreground/[0.06] px-5 sm:px-6 py-5 bg-foreground/[0.015]">
+        <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-muted-foreground/80 mb-2">
+          Costa · opened the room
         </div>
-        <p className="text-sm text-foreground/80 leading-relaxed">
+        <p
+          className="text-[1.0625rem] sm:text-[1.125rem] leading-[1.45] text-foreground/85 max-w-[60ch]"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
           {dialogue.question}
         </p>
       </div>
 
-      {/* Transcript with typing animation */}
+      {/* Transcript */}
       <div
         ref={containerRef}
-        className="max-h-[420px] overflow-y-auto px-5 py-4 space-y-5"
+        className={`${maxH} overflow-y-auto px-5 sm:px-6 py-5 space-y-6`}
       >
         {dialogue.turns.slice(0, turnIdx + 1).map((t, i) => {
           const isCurrent = i === turnIdx;
           const display = isCurrent ? streamed : t.content;
-          const agentColor =
+          const accent =
             t.agent === "claude"
-              ? "text-amber-200"
+              ? {
+                  rule: "bg-amber-300/70",
+                  name: "text-amber-200",
+                  glow: "shadow-amber-400/40",
+                }
               : t.agent === "codex"
-              ? "text-emerald-200"
-              : "text-muted-foreground";
-          const agentBg =
-            t.agent === "claude"
-              ? "bg-amber-200/[0.04] border-amber-200/20"
-              : t.agent === "codex"
-              ? "bg-emerald-200/[0.04] border-emerald-200/20"
-              : "bg-muted/20 border-border/40";
+              ? {
+                  rule: "bg-emerald-300/70",
+                  name: "text-emerald-200",
+                  glow: "shadow-emerald-400/40",
+                }
+              : {
+                  rule: "bg-foreground/40",
+                  name: "text-foreground/80",
+                  glow: "shadow-foreground/20",
+                };
+
           return (
-            <div key={i} className={`rounded-lg border ${agentBg} p-4`}>
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="flex items-center gap-2">
-                  <span className={`font-mono text-sm ${agentColor}`}>
+            <article key={i} className="relative pl-5">
+              {/* Speaker rule — the only color signal per turn. No card frame. */}
+              <span
+                className={`absolute left-0 top-1.5 bottom-1.5 w-px ${accent.rule} shadow-[0_0_4px] ${accent.glow}`}
+                aria-hidden
+              />
+              <header className="flex items-center justify-between gap-3 mb-2.5">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span
+                    className={`font-mono text-[13px] ${accent.name} font-medium`}
+                  >
                     {t.agent}
                   </span>
-                  <span className="font-mono text-[10px] text-muted-foreground">
+                  <span className="font-mono text-[10px] text-muted-foreground/70 truncate">
                     {t.model}
                   </span>
                   {t.label && (
-                    <Badge
-                      variant="outline"
-                      className="font-mono text-[10px] uppercase tracking-widest border-foreground/20"
-                    >
-                      [{t.label}]
-                    </Badge>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-foreground/55 border border-foreground/15 px-1.5 py-px rounded">
+                      {t.label}
+                    </span>
                   )}
                 </div>
-                <span className="font-mono text-[10px] text-muted-foreground">
-                  turn {t.turn}
+                <span className="font-mono text-[10px] text-muted-foreground/70 shrink-0">
+                  turn · {t.turn}
                 </span>
-              </div>
-              <div className="whitespace-pre-wrap text-sm text-foreground/90 leading-relaxed font-sans">
+              </header>
+              <div className="whitespace-pre-wrap text-[0.9375rem] leading-[1.55] text-foreground/90">
                 {display}
                 {isCurrent && playing && streamed.length < full.length && (
-                  <span className="inline-block w-1.5 h-4 bg-foreground/70 ml-0.5 align-text-bottom animate-pulse" />
+                  <span className="tr-caret" />
                 )}
               </div>
-            </div>
+            </article>
           );
         })}
 
         {isDone && (
-          <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/[0.04] p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-emerald-300">
-                final_brief.joint_read
+          <article className="relative pl-5">
+            <span
+              className="absolute left-0 top-1.5 bottom-1.5 w-px bg-gradient-to-b from-amber-300/80 via-foreground/60 to-emerald-300/80"
+              aria-hidden
+            />
+            <header className="flex items-baseline gap-2 mb-2">
+              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-foreground">
+                final_brief
               </span>
-            </div>
-            <p className="text-sm text-foreground leading-relaxed">
+              <span className="font-mono text-[10px] text-muted-foreground/70">
+                · joint_read
+              </span>
+            </header>
+            <p
+              className="text-[1.0625rem] leading-[1.55] text-foreground"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
               {dialogue.joint_read}
             </p>
-          </div>
+          </article>
         )}
       </div>
 
-      {/* Controls */}
-      <div className="border-t border-border/60 px-4 py-3 bg-background/60 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-1">
-          <button
+      {/* Footer: minimal controls + scrub bar. No icons-with-labels redundancy. */}
+      <div className="border-t border-foreground/[0.06] px-5 py-3 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-0.5">
+          <ControlButton
             onClick={() => setPlaying((p) => !p)}
             disabled={isDone}
-            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            label={playing ? "pause" : "play"}
           >
-            {playing ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
-            {playing ? "pause" : "play"}
-          </button>
-          <button
+            {playing ? (
+              <Pause className="size-3.5" />
+            ) : (
+              <Play className="size-3.5" />
+            )}
+          </ControlButton>
+          <ControlButton
             onClick={skipAhead}
             disabled={isDone}
-            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            label="skip to next turn"
           >
             <Forward className="size-3.5" />
-            skip
-          </button>
-          <button
-            onClick={reset}
-            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
-          >
+          </ControlButton>
+          <ControlButton onClick={reset} label="replay from start">
             <RotateCcw className="size-3.5" />
-            replay
-          </button>
+          </ControlButton>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground">
-            <button
-              onClick={() => setSpeed(4)}
-              className={`px-2 py-0.5 rounded ${
-                speed === 4 ? "bg-muted/60 text-foreground" : "hover:text-foreground"
-              }`}
-            >
-              1x
-            </button>
-            <button
-              onClick={() => setSpeed(8)}
-              className={`px-2 py-0.5 rounded ${
-                speed === 8 ? "bg-muted/60 text-foreground" : "hover:text-foreground"
-              }`}
-            >
-              2x
-            </button>
-            <button
-              onClick={() => setSpeed(20)}
-              className={`px-2 py-0.5 rounded ${
-                speed === 20 ? "bg-muted/60 text-foreground" : "hover:text-foreground"
-              }`}
-            >
-              4x
-            </button>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-px font-mono text-[10px] text-muted-foreground rounded-md border border-foreground/10 overflow-hidden">
+            {[
+              { v: 6, l: "1×" },
+              { v: 12, l: "2×" },
+              { v: 28, l: "4×" },
+            ].map((s) => (
+              <button
+                key={s.v}
+                onClick={() => setSpeed(s.v)}
+                className={`px-2 py-1 transition-colors ${
+                  speed === s.v
+                    ? "bg-foreground/10 text-foreground"
+                    : "hover:text-foreground"
+                }`}
+              >
+                {s.l}
+              </button>
+            ))}
           </div>
 
-          <div className="hidden sm:block w-32 h-1 rounded-full bg-muted/30 overflow-hidden">
+          <div
+            className="hidden sm:block w-28 h-px bg-foreground/15 relative overflow-visible"
+            aria-label="progress"
+          >
             <div
-              className="h-full bg-foreground/60 transition-all duration-200"
-              style={{ width: `${progress * 100}%` }}
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-amber-300/80 to-emerald-300/80 transition-[width] duration-300"
+              style={{
+                width: `${progress * 100}%`,
+                height: "1px",
+                boxShadow: "0 0 6px oklch(0.78 0.16 70 / 0.5)",
+              }}
             />
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function ControlButton({
+  onClick,
+  disabled,
+  label,
+  children,
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      title={label}
+      className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-all hover:text-foreground hover:bg-foreground/[0.06] disabled:opacity-40 disabled:cursor-not-allowed"
+    >
+      {children}
+    </button>
   );
 }
