@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { InstallSnippet } from "@/components/install-snippet";
 import { GithubIcon } from "@/components/icons";
+import { Wordmark } from "@/components/wordmark";
 
 export const metadata = {
   title: "Docs — Team Room",
@@ -13,15 +14,8 @@ export default function DocsPage() {
     <div className="min-h-dvh bg-white text-zinc-900">
       <header className="border-b border-zinc-200/80">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link
-            href="/"
-            className="flex items-center gap-2.5 text-xs tracking-[0.22em] text-zinc-600 hover:text-zinc-900 transition-colors"
-          >
-            <span aria-hidden className="relative inline-flex h-2.5 w-5">
-              <span className="absolute left-0 top-0 h-2.5 w-2.5 rounded-full border border-amber-600/70" />
-              <span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full border border-emerald-600/70" />
-            </span>
-            <span>TEAM ROOM</span>
+          <Link href="/" aria-label="Team Room — home">
+            <Wordmark size={14} />
           </Link>
           <div className="flex items-center gap-5 text-xs tracking-[0.18em] text-zinc-500">
             <Link href="/" className="hover:text-zinc-900 transition-colors">

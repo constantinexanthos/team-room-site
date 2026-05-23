@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Spotlight } from "@/components/ui/spotlight";
-import { SplineScene } from "@/components/ui/splite";
+import { HeroScene } from "@/components/hero-scene";
 import { FeatureCard } from "@/components/ui/grid-feature-cards";
 import { InstallSnippet } from "@/components/install-snippet";
 import { GithubIcon } from "@/components/icons";
+import { Wordmark } from "@/components/wordmark";
 import {
   Layers,
   GitFork,
@@ -61,13 +62,9 @@ export default function HomePage() {
       {/* ─── HEADER ────────────────────────────────────────────────────── */}
       <header className="border-b border-zinc-200/80">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
-          <div className="flex items-center gap-2.5 text-xs tracking-[0.22em] text-zinc-600">
-            <span aria-hidden className="relative inline-flex h-2.5 w-5">
-              <span className="absolute left-0 top-0 h-2.5 w-2.5 rounded-full border border-amber-600/70" />
-              <span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full border border-emerald-600/70" />
-            </span>
-            <span>TEAM ROOM</span>
-          </div>
+          <Link href="/" aria-label="Team Room — home">
+            <Wordmark size={14} />
+          </Link>
           <nav className="flex items-center gap-5 text-xs tracking-[0.18em] text-zinc-500">
             <Link href="/docs" className="hover:text-zinc-900 transition-colors">
               DOCS
@@ -117,23 +114,9 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Right: Spline 3D scene — the "room" visual */}
+              {/* Right: Two-robot custom SVG scene — the actual product visual */}
               <div className="relative flex-1 hidden md:block">
-                <SplineScene
-                  scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-                  className="h-full w-full"
-                />
-                {/* Tiny labels declaring the two-agent identity */}
-                <div className="pointer-events-none absolute left-4 bottom-4 flex flex-col gap-1.5 font-mono text-[10px] tracking-[0.25em] text-white/55">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-block size-1.5 rounded-full bg-amber-300" />
-                    CLAUDE · OPUS 4.7
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="inline-block size-1.5 rounded-full bg-emerald-300" />
-                    CHATGPT · GPT-5.5
-                  </div>
-                </div>
+                <HeroScene />
               </div>
             </div>
           </Card>
