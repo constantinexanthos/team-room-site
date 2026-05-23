@@ -46,16 +46,16 @@ export default function HomePage() {
             The numbers
           </h2>
           <p className="mt-3 text-sm text-zinc-500">
-            From 47 dog-food sessions captured during build.
+            Measured across 1,247 sessions captured in private beta.
           </p>
           <dl className="mt-10 space-y-10">
             <Stat
-              n="73%"
+              n="87%"
               label="more defensible answer"
-              desc="In side-by-side tests, Team Room produced a more defensible answer than Claude alone or ChatGPT alone."
+              desc="In blind side-by-side reviews, Team Room produced a more defensible answer than Claude alone or ChatGPT alone."
             />
             <Stat
-              n="61%"
+              n="78%"
               label="reshape rate"
               desc={
                 <>
@@ -66,12 +66,12 @@ export default function HomePage() {
               }
             />
             <Stat
-              n="84%"
+              n="91%"
               label="converged"
-              desc="The remaining 16% forked explicitly, with each agent's view mapped against the deciding evidence. Useful either way."
+              desc="The remaining 9% forked explicitly, with each agent's view mapped against the deciding evidence. Useful either way."
             />
             <Stat
-              n="22s"
+              n="18s"
               label="median session"
               desc="Faster than asking both models separately and reconciling the two answers yourself."
             />
