@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { InstallSnippet } from "@/components/install-snippet";
 import { GithubIcon } from "@/components/icons";
-import { Wordmark } from "@/components/wordmark";
 
 export const metadata = {
   title: "Docs — Team Room",
@@ -12,12 +11,16 @@ export const metadata = {
 export default function DocsPage() {
   return (
     <div className="min-h-dvh bg-white text-zinc-900">
-      <header className="border-b border-zinc-200/80">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link href="/" aria-label="Team Room — home">
-            <Wordmark size={14} />
+      <header className="border-b border-zinc-200">
+        <div className="mx-auto flex max-w-2xl items-center justify-between px-5 py-4 sm:px-6">
+          <Link
+            href="/"
+            aria-label="Team Room — home"
+            className="text-sm font-semibold tracking-tight text-zinc-900"
+          >
+            Team Room
           </Link>
-          <div className="flex items-center gap-5 text-xs tracking-[0.18em] text-zinc-500">
+          <nav className="flex items-center gap-5 text-xs tracking-[0.18em] text-zinc-500">
             <Link href="/" className="hover:text-zinc-900 transition-colors">
               HOME
             </Link>
@@ -30,19 +33,19 @@ export default function DocsPage() {
               <GithubIcon className="size-3.5" />
               <span>GITHUB</span>
             </a>
-          </div>
+          </nav>
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-5 py-16 sm:px-8 sm:py-20">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl">
-          team-room <span className="text-zinc-400">/ docs</span>
+      <main className="mx-auto max-w-2xl px-5 py-16 sm:px-6 sm:py-20">
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl">
+          Docs
         </h1>
         <p className="mt-3 text-base text-zinc-600">
           A Claude Code MCP plugin. Install, ask, get a structured brief.
         </p>
 
-        <Section num="01" title="Install">
+        <Section title="Install">
           <p>Inside a Claude Code session:</p>
           <div className="my-4">
             <InstallSnippet />
@@ -62,7 +65,7 @@ export default function DocsPage() {
           </p>
         </Section>
 
-        <Section num="02" title="Use">
+        <Section title="Use">
           <p>
             Ask Claude in natural language. The skill (bundled with the
             plugin) tells Claude when to reach for team-room.
@@ -84,7 +87,7 @@ team_room_ask({
           </p>
         </Section>
 
-        <Section num="03" title="The four outcomes">
+        <Section title="The four outcomes">
           <p>
             Every session ends in exactly one terminal state. The MCP tool
             surfaces <Mono>outcome</Mono> + <Mono>final_brief</Mono> as the
@@ -118,7 +121,7 @@ team_room_ask({
           </dl>
         </Section>
 
-        <Section num="04" title="The dialogue protocol">
+        <Section title="The dialogue protocol">
           <p>
             Dialogue mode is a function-labeled working session. Each turn
             opens with a tag the orchestrator captures as metadata and uses
@@ -135,7 +138,7 @@ team_room_ask({
               desc="Turn 2: improve the frame before adding substance."
             />
             <Tag
-              name="evidence · build · refine"
+              name="evidence / build / refine"
               desc="Mid-dialogue moves."
             />
             <Tag name="push-back" desc="Substantive disagreement, mapped not graded." />
@@ -151,9 +154,8 @@ team_room_ask({
             </li>
             <li>
               <strong className="text-zinc-900">Map the fork.</strong>{" "}
-              Disagreement uses{" "}
-              <em className="text-zinc-700 not-italic">condition under which the other&apos;s view is right</em>{" "}
-              language, not scoring rubrics.
+              Disagreement uses the &ldquo;condition under which the
+              other&apos;s view is right&rdquo; language, not scoring rubrics.
             </li>
             <li>
               <strong className="text-zinc-900">Asymmetry as lens.</strong>{" "}
@@ -164,7 +166,7 @@ team_room_ask({
           </ul>
         </Section>
 
-        <Section num="05" title="MCP tool surface">
+        <Section title="MCP tool surface">
           <dl className="mt-2 divide-y divide-zinc-200 border-y border-zinc-200">
             <Tool
               name="team_room_ask"
@@ -185,7 +187,7 @@ team_room_ask({
           </dl>
         </Section>
 
-        <Section num="06" title="Modes">
+        <Section title="Modes">
           <ul className="mt-2 space-y-3 text-sm leading-relaxed text-zinc-700">
             <li>
               <Mono>dialogue</Mono> (default) — collaborative micro-turn
@@ -199,7 +201,7 @@ team_room_ask({
           </ul>
         </Section>
 
-        <Section num="07" title="Environment">
+        <Section title="Environment">
           <p>
             State lives at <Mono>$TEAM_ROOM_DIR</Mono> (default{" "}
             <Mono>~/.team-room/</Mono>). Per topic:{" "}
@@ -217,7 +219,7 @@ team_room_ask({
 
         <footer className="mt-20 border-t border-zinc-200 pt-8 text-xs text-zinc-500">
           <Link href="/" className="hover:text-zinc-900 transition-colors">
-            ← back to the room
+            ← back to the home page
           </Link>
         </footer>
       </main>
@@ -226,20 +228,17 @@ team_room_ask({
 }
 
 function Section({
-  num,
   title,
   children,
 }: {
-  num: string;
   title: string;
   children: React.ReactNode;
 }) {
   return (
     <section className="mt-14">
-      <div className="font-mono text-[10px] tracking-[0.22em] text-zinc-500">
-        {num} / {title.toUpperCase()}
-      </div>
-      <h2 className="mt-3 text-xl font-semibold text-zinc-900">{title}</h2>
+      <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">
+        {title}
+      </h2>
       <div className="mt-4 space-y-3 text-sm leading-relaxed text-zinc-700">
         {children}
       </div>
@@ -249,7 +248,7 @@ function Section({
 
 function Mono({ children }: { children: React.ReactNode }) {
   return (
-    <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[0.9em] text-zinc-900">
+    <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[0.85em] text-zinc-800">
       {children}
     </code>
   );
@@ -267,10 +266,12 @@ function Outcome({
   desc: string;
 }) {
   return (
-    <div className="grid grid-cols-[12rem_1fr] gap-6 py-4">
-      <dt className="flex items-center gap-2.5">
-        <span className={`inline-block size-1.5 rounded-full ${dot}`} />
-        <span className="text-sm font-medium text-zinc-900">{name}</span>
+    <div className="grid grid-cols-[10rem_1fr] gap-6 py-4">
+      <dt className="flex flex-col items-start gap-1">
+        <div className="flex items-center gap-2.5">
+          <span className={`inline-block size-1.5 rounded-full ${dot}`} />
+          <span className="text-sm font-medium text-zinc-900">{name}</span>
+        </div>
         <span className="font-mono text-[10px] text-zinc-400">
           final_brief.{field}
         </span>
@@ -282,7 +283,7 @@ function Outcome({
 
 function Tag({ name, desc }: { name: string; desc: string }) {
   return (
-    <div className="grid grid-cols-[12rem_1fr] gap-6 py-3">
+    <div className="grid grid-cols-[10rem_1fr] gap-6 py-3">
       <dt className="font-mono text-sm text-zinc-900">[{name}]</dt>
       <dd className="text-sm text-zinc-600 leading-relaxed">{desc}</dd>
     </div>

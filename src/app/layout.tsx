@@ -1,21 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-// Two roles, one principle: Inter for everything readable, JetBrains Mono for
-// code/labels only. No display serif. No italics. The mono is the legitimate
-// exception because code in a proportional font reads wrong.
+// One font for the whole site. JetBrains Mono dropped — for the few code
+// blocks we have, system mono is fine and saves a network request.
 const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
-});
-
-const mono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -24,7 +16,8 @@ export const metadata: Metadata = {
     "A Claude Code MCP plugin. Two AI minds deliberate on hard questions and return one structured brief.",
   openGraph: {
     title: "Team Room",
-    description: "Two AI minds deliberate on hard questions and return one structured brief.",
+    description:
+      "Two AI minds deliberate on hard questions and return one structured brief.",
     type: "website",
   },
 };
@@ -35,10 +28,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${mono.variable} h-full antialiased`}
+      className={`${inter.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full bg-white text-zinc-900" style={{ fontFamily: "var(--font-sans), ui-sans-serif, system-ui, sans-serif" }}>
+      <body
+        className="min-h-full bg-white text-zinc-900"
+        style={{
+          fontFamily:
+            "var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif",
+        }}
+      >
         {children}
       </body>
     </html>
