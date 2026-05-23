@@ -1,7 +1,7 @@
-// Small pixel-art robot. 14×16 grid rendered as inline SVG rects.
-// One generic mascot for the whole brand — chest carries two small lights
-// (amber + emerald) hinting at the two-agent nature. Used in the header
-// (tiny) and the hero (larger, animated bobbing).
+// Small pixel-art robot. 14x16 grid rendered as inline SVG rects.
+// One robot shape, two agent variants: pass agent="claude" to show only
+// the amber chest light (Claude), or agent="chatgpt" for the emerald one.
+// Default "both" shows both lights (used for generic brand contexts).
 
 const PIXELS = [
   "....XXXXXX....",
@@ -26,13 +26,18 @@ export function PixelRobot({
   size = 32,
   className,
   animated = false,
+  agent = "both",
 }: {
   size?: number;
   className?: string;
   animated?: boolean;
+  agent?: "claude" | "chatgpt" | "both";
 }) {
   const cols = PIXELS[0].length;
   const rows = PIXELS.length;
+  const showAmber = agent === "claude" || agent === "both";
+  const showEmerald = agent === "chatgpt" || agent === "both";
+
   return (
     <svg
       viewBox={`0 0 ${cols} ${rows}`}
@@ -46,7 +51,7 @@ export function PixelRobot({
       className={className}
       aria-hidden
     >
-      {/* Main body pixels */}
+      {/* Body pixels */}
       {PIXELS.map((row, y) =>
         row.split("").map((cell, x) =>
           cell === "X" ? (
@@ -54,9 +59,9 @@ export function PixelRobot({
           ) : null,
         ),
       )}
-      {/* Chest lights — the two-agent seal: amber dot + emerald dot */}
-      <rect x="5" y="11" width="1" height="1" fill="#f59e0b" />
-      <rect x="8" y="11" width="1" height="1" fill="#10b981" />
+      {/* Chest lights, one per agent */}
+      {showAmber && <rect x="5" y="11" width="1" height="1" fill="#f59e0b" />}
+      {showEmerald && <rect x="8" y="11" width="1" height="1" fill="#10b981" />}
 
       <style>{`
         @keyframes tr-bot-bob {

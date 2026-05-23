@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Team Room — Claude and ChatGPT, working together",
+  title: "Team Room · Claude and ChatGPT, working together",
   description:
     "A Claude Code MCP plugin. Two AI minds deliberate on hard questions and return one structured brief.",
   openGraph: {

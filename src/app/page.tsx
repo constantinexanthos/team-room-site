@@ -3,10 +3,10 @@ import { InstallSnippet } from "@/components/install-snippet";
 import { GithubIcon } from "@/components/icons";
 import { PixelRobot } from "@/components/pixel-robot";
 
-// Retro-gamer vibes — wider container, chunky 2px borders, game-style stat
-// bars, pixel-art robot mascot, ASCII-style how-it-works flow. ONE font
-// (Inter) all the way through; mono only inside code/terminal blocks.
-// Saturated brand accents (amber + emerald) used as the two-agent seal.
+// Retro-gamer aesthetic. Wider container, chunky 2px borders, game-style
+// stat bars, two pixel robots (one per agent), an inside/outside view of
+// what a session actually feels like. One font (Inter) everywhere, mono
+// only inside code/terminal blocks. No em-dashes. No italics.
 
 export default function HomePage() {
   return (
@@ -17,11 +17,10 @@ export default function HomePage() {
         {/* ── HERO ──────────────────────────────────────────────── */}
         <section className="pt-16 pb-20 sm:pt-24 sm:pb-24">
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-[auto_1fr] sm:items-start sm:gap-12">
-            {/* Pixel robot mascot — animated bob */}
-            <div className="flex shrink-0 items-center justify-center sm:pt-2">
-              <div className="text-zinc-950">
-                <PixelRobot size={88} animated />
-              </div>
+            {/* Two robots side by side, one per agent */}
+            <div className="flex shrink-0 items-end gap-4 sm:pt-1">
+              <RobotMascot agent="claude" />
+              <RobotMascot agent="chatgpt" />
             </div>
 
             <div>
@@ -32,7 +31,7 @@ export default function HomePage() {
                 A Claude Code plugin that puts{" "}
                 <Agent color="amber">Claude</Agent> and{" "}
                 <Agent color="emerald">ChatGPT</Agent> in one room. They
-                deliberate on hard questions together and return one
+                deliberate on hard questions together, and return one
                 structured brief.
               </p>
               <div className="mt-8">
@@ -42,7 +41,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── HOW IT WORKS — ASCII-style flow ───────────────────── */}
+        {/* ── HOW IT WORKS: simple visual flow ──────────────────── */}
         <section className="border-t-2 border-zinc-900 py-16 sm:py-20">
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-900">
             How it works
@@ -54,13 +53,17 @@ export default function HomePage() {
           <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto_2fr_auto_1fr] sm:items-stretch">
             <FlowBox title="YOU" subtitle="ask in plain language" />
             <FlowArrow label="ask" />
-            <FlowBox title="TEAM ROOM" subtitle="claude · chatgpt deliberate" highlight />
+            <FlowBox
+              title="TEAM ROOM"
+              subtitle="claude and chatgpt deliberate"
+              highlight
+            />
             <FlowArrow label="brief" />
             <FlowBox title="YOU" subtitle="act on a single answer" />
           </div>
         </section>
 
-        {/* ── STAT BARS — game-style ─────────────────────────────── */}
+        {/* ── STAT BARS: game-style ─────────────────────────────── */}
         <section className="border-t-2 border-zinc-900 py-16 sm:py-20">
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-900">
             The numbers
@@ -80,7 +83,7 @@ export default function HomePage() {
               label="reshape rate"
               percent={78}
               color="emerald"
-              desc="The second agent reshaped the first agent's framing — collapsed it into something sharper. The single move you can't get from parallel queries."
+              desc="The second agent reshaped the first agent's framing into something sharper. That's the single move you can't get from parallel queries."
             />
             <StatBar
               label="converged cleanly"
@@ -98,7 +101,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── WHY TEAM ROOM vs alternatives ──────────────────────── */}
+        {/* ── WHY TEAM ROOM vs alternatives ─────────────────────── */}
         <section className="border-t-2 border-zinc-900 py-16 sm:py-20">
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-900">
             Why Team Room
@@ -150,52 +153,90 @@ export default function HomePage() {
           </div>
 
           <p className="mt-6 text-sm leading-relaxed text-zinc-600">
-            The <em>reshape</em> move is the moat. An adversarial review
-            produces critique. A one-shot codex call produces a single
-            perspective. Team Room produces the conversation between them —
-            and the joint read that comes out of it.
+            The reshape move is the moat. An adversarial review produces
+            critique. A one-shot codex call produces a single perspective.
+            Team Room produces the conversation between them, and the joint
+            read that comes out of it.
           </p>
         </section>
 
-        {/* ── SAMPLE SESSION ──────────────────────────────────────── */}
+        {/* ── WHAT A SESSION LOOKS LIKE: outside vs inside ──────── */}
         <section className="border-t-2 border-zinc-900 py-16 sm:py-20">
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-900">
             What a session looks like
           </h2>
           <p className="mt-3 text-sm text-zinc-600">
-            Real exchange. Converged in three turns, 22 seconds.
+            What you see in your terminal is short. What actually happened
+            inside the room is the whole reason you got that answer.
           </p>
 
-          <div className="mt-6 border-2 border-zinc-900 bg-zinc-50">
-            <div className="border-b-2 border-zinc-900 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-900">
-              <span className="inline-block mr-2 size-1.5 rounded-full bg-emerald-500 align-middle" />
-              converged · 3 turns · 22s
+          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+            {/* WHAT YOU SEE */}
+            <div className="border-2 border-zinc-900 bg-white">
+              <div className="border-b-2 border-zinc-900 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-900">
+                <span className="inline-block mr-2 size-1.5 rounded-full bg-zinc-900 align-middle" />
+                what you see
+              </div>
+              <pre className="overflow-x-auto px-4 py-4 text-[12px] leading-[1.65] text-zinc-700">
+{`> what's the most defensible
+  moat for an early-stage AI
+  tools company?
+
+  claude:
+  Team Room landed on (c) deep
+  workflow integrations, but
+  specifically the kind where
+  you can observe outcomes (CI,
+  merges, reverts). That's the
+  only version of (c) that
+  produces the proprietary data
+  corpus competitors can't
+  replicate.
+
+  (3 turns, 22s, expand for
+   full transcript)`}
+              </pre>
             </div>
-            <pre className="overflow-x-auto px-5 py-5 text-[12.5px] leading-[1.7] text-zinc-700">
-{`> What's the most defensible moat for an early-stage
-  AI tools company?
 
-  [claude · frame]
-  The real decision: between proprietary data/evals
-  vs. deep dev-workflow integrations — which compounds
-  faster under capital constraints?
+            {/* BEHIND THE SCENES */}
+            <div className="border-2 border-zinc-900 bg-zinc-50">
+              <div className="border-b-2 border-zinc-900 bg-zinc-100 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-900">
+                <span className="inline-block mr-2 size-1.5 rounded-full bg-emerald-500 align-middle" />
+                inside the room
+              </div>
+              <pre className="overflow-x-auto px-4 py-4 text-[12px] leading-[1.65] text-zinc-700">
+{`[claude · frame]
+The real decision: proprietary
+data/evals vs. deep dev workflow
+integrations. Which compounds
+faster under capital constraints?
 
-  [chatgpt · reshape]
-  Taking your narrowing move: the wedge is workflow
-  integration, the moat is the data exhaust it produces.
-  Distribution is acceleration, not defense.
+[chatgpt · reshape]
+Taking your narrowing move. The
+wedge is workflow integration,
+the moat is the data exhaust it
+produces.
 
-  [claude · converge]
-  Taking your reshape cleanly. Only the integrations
-  wired to outcome signals produce a corpus competitors
-  can't observe.
+[claude · converge]
+Taking your reshape cleanly.
+Only integrations wired to
+outcome signals produce a corpus
+competitors can't observe.
 
-  Joint read: Pick (c) — but specifically, the workflow
-  integration where you can observe outcomes (CI, merges,
-  reverts). That's the only version of (c) that produces
-  the proprietary data corpus competitors can't replicate.`}
-            </pre>
+joint read for costa: pick (c)
+specifically the version that
+observes outcomes (CI, merges,
+reverts).`}
+              </pre>
+            </div>
           </div>
+
+          <p className="mt-6 text-sm leading-relaxed text-zinc-600">
+            You don&apos;t orchestrate the room. You ask. The plugin runs the
+            dialogue between Claude and ChatGPT inside the tool call, then
+            returns the structured brief. The full transcript is one click
+            away if you want it, but most of the time you don&apos;t need it.
+          </p>
         </section>
 
         {/* ── WHAT TO ASK IT ───────────────────────────────────── */}
@@ -207,13 +248,25 @@ export default function HomePage() {
             Reach for the room on questions where the answer compounds.
           </p>
           <dl className="mt-8 divide-y-2 divide-zinc-200 border-y-2 border-zinc-200">
-            <Ask tag="architecture" q="Postgres or DynamoDB for a side project we might never scale?" />
-            <Ask tag="prioritization" q="Ship the auth refactor as one PR or split into three?" />
-            <Ask tag="naming" q="What should we call this endpoint, given we don't know the next two callers?" />
-            <Ask tag="trade-offs" q="Spend the week on docs or polish the install?" />
+            <Ask
+              tag="architecture"
+              q="Postgres or DynamoDB for a side project we might never scale?"
+            />
+            <Ask
+              tag="prioritization"
+              q="Ship the auth refactor as one PR or split into three?"
+            />
+            <Ask
+              tag="naming"
+              q="What should we call this endpoint, given we don't know the next two callers?"
+            />
+            <Ask
+              tag="trade-offs"
+              q="Spend the week on docs or polish the install?"
+            />
           </dl>
           <p className="mt-6 text-sm text-zinc-500">
-            Skip it for tactical work — bug fixes, test writing, regex
+            Skip it for tactical work like bug fixes, test writing, or regex
             explanation. Just answer those directly.
           </p>
         </section>
@@ -232,7 +285,7 @@ export default function HomePage() {
             each other by name, push back on each other&apos;s framing, and
             return one answer instead of two.
           </p>
-          <p className="mt-6 text-sm text-zinc-500">— Costa</p>
+          <p className="mt-6 text-sm text-zinc-500">Costa</p>
         </section>
 
         {/* ── INSTALL ───────────────────────────────────────────── */}
@@ -269,8 +322,9 @@ export default function HomePage() {
         <footer className="border-t-2 border-zinc-900 py-10 text-xs text-zinc-500">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-zinc-900">
-                <PixelRobot size={20} />
+              <span className="text-zinc-900 inline-flex items-center gap-1">
+                <PixelRobot size={16} agent="claude" />
+                <PixelRobot size={16} agent="chatgpt" />
               </span>
               <span>
                 Built by{" "}
@@ -300,10 +354,13 @@ function SiteHeader() {
       <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-4 sm:px-8 sm:py-5">
         <Link
           href="/"
-          aria-label="Team Room — home"
+          aria-label="Team Room home"
           className="flex items-center gap-3 text-zinc-950"
         >
-          <PixelRobot size={28} />
+          <span className="inline-flex items-center gap-1.5">
+            <PixelRobot size={22} agent="claude" />
+            <PixelRobot size={22} agent="chatgpt" />
+          </span>
           <span className="text-xl font-bold tracking-tight">Team Room</span>
         </Link>
         <nav className="flex items-center gap-5 text-xs font-bold tracking-[0.2em] text-zinc-500">
@@ -325,6 +382,25 @@ function SiteHeader() {
   );
 }
 
+// ── Hero robot with name label ─────────────────────────────────────────
+
+function RobotMascot({ agent }: { agent: "claude" | "chatgpt" }) {
+  const color = agent === "claude" ? "text-amber-600" : "text-emerald-600";
+  const label = agent === "claude" ? "CLAUDE" : "CHATGPT";
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <span className="text-zinc-950">
+        <PixelRobot size={64} animated agent={agent} />
+      </span>
+      <span
+        className={`font-mono text-[9px] font-bold tracking-[0.22em] ${color}`}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
+
 // ── Inline helpers ─────────────────────────────────────────────────────
 
 function Agent({
@@ -337,7 +413,9 @@ function Agent({
   const dotClass = color === "amber" ? "bg-amber-500" : "bg-emerald-500";
   return (
     <span className="inline-flex items-baseline gap-1.5">
-      <span className={`inline-block size-2 translate-y-[-1px] rounded-full ${dotClass}`} />
+      <span
+        className={`inline-block size-2 translate-y-[-1px] rounded-full ${dotClass}`}
+      />
       {children}
     </span>
   );
@@ -351,7 +429,7 @@ function Code({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ── Stat bar — game HP style ───────────────────────────────────────────
+// ── Stat bar: game HP style ────────────────────────────────────────────
 
 function StatBar({
   label,
@@ -392,7 +470,7 @@ function StatBar({
   );
 }
 
-// ── Flow box — for "How it works" diagram ──────────────────────────────
+// ── Flow box for the How it works diagram ──────────────────────────────
 
 function FlowBox({
   title,
@@ -427,12 +505,12 @@ function FlowArrow({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center justify-center px-2 text-zinc-500">
       <span className="text-[10px] uppercase tracking-[0.2em]">{label}</span>
-      <span className="font-mono text-xl leading-none">→</span>
+      <span className="font-mono text-xl leading-none">{">"}</span>
     </div>
   );
 }
 
-// ── Compare column — for "Why Team Room" panel ─────────────────────────
+// ── Compare column for Why Team Room panel ─────────────────────────────
 
 function CompareColumn({
   tag,
@@ -489,9 +567,9 @@ function CompareColumn({
           </div>
           <div className="mt-1 font-mono text-sm font-bold">
             {reshape ? (
-              <span className="text-emerald-600">✓ yes</span>
+              <span className="text-emerald-600">YES</span>
             ) : (
-              <span className="text-zinc-400">✗ no</span>
+              <span className="text-zinc-400">NO</span>
             )}
           </div>
         </div>
