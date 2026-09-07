@@ -1,0 +1,212 @@
+.scene {
+  --animation-state: running;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: clip;
+  pointer-events: none;
+  user-select: none;
+}
+.scene[data-paused="true"] { --animation-state: paused; }
+.sideRoom { position: absolute; }
+.desk {
+  --work-state: running;
+  --work-opacity: 1;
+  --face-opacity: 0;
+  position: absolute;
+  z-index: 1;
+  animation: workClaude var(--cycle-duration) steps(1, end) infinite;
+}
+.desk[data-desk="chatgpt"] { animation-name: workChatgpt; }
+.desk [data-terminal-code] {
+  animation: terminalCode 1.2s steps(2, end) infinite;
+  animation-play-state: var(--animation-state);
+}
+.desk [data-terminal-code="2"] { animation-delay: -.6s; }
+.desk [data-terminal-cursor] {
+  opacity: var(--work-opacity);
+  animation: terminalCursor .65s steps(1, end) infinite;
+  animation-play-state: var(--animation-state);
+}
+.chair {
+  position: absolute;
+  z-index: 1;
+  width: 20px;
+  height: 19px;
+  border: 1px solid #a1a1aa;
+  border-radius: 3px 3px 5px 5px;
+  background: #f4f4f5;
+  box-shadow: 0 4px 0 -2px #a1a1aa;
+}
+.desk > svg { display: block; width: 100%; height: auto; }
+.walker {
+  --bubble-paper: #fffcf3;
+  --stride-amount: 0;
+  --work-state: running;
+  --work-opacity: 1;
+  --face-opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  transform: translate(var(--home-x), var(--home-y));
+  animation: travelClaude var(--cycle-duration) linear infinite,
+    strideClaude var(--cycle-duration) steps(1, end) infinite,
+    workClaude var(--cycle-duration) steps(1, end) infinite;
+}
+.walker[data-agent="chatgpt"] {
+  --bubble-paper: #f5faf5;
+  animation-name: travelChatgpt, strideChatgpt, workChatgpt;
+}
+.shadow {
+  position: absolute;
+  right: 5px;
+  bottom: -4px;
+  left: 5px;
+  height: 6px;
+  border-radius: 50%;
+  background: #18181b0c;
+}
+.robot { display: block; color: #3f3f46; overflow: visible; }
+/* At the keyboard we see the back of the head; walkers turn toward the room. */
+.robot rect[data-robot-face] { opacity: var(--face-opacity); }
+/* Only the feet stride. The head and body stay steady while walking. */
+.robot rect[y="14"], .robot rect[y="15"] {
+  animation: footstep .32s ease-in-out infinite;
+  animation-play-state: var(--animation-state);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.robot rect[y="14"][x="9"], .robot rect[y="14"][x="10"],
+.robot rect[y="15"][x="9"], .robot rect[y="15"][x="10"] { animation-delay: -.16s; }
+/* Hands tap while at the assigned workstation; the torso stays still. */
+.robot rect[y="11"][x="2"], .robot rect[y="12"][x="2"],
+.robot rect[y="11"][x="11"], .robot rect[y="12"][x="11"] {
+  animation: typing .3s ease-in-out infinite;
+  animation-play-state: var(--animation-state);
+}
+.robot rect[y="11"][x="11"], .robot rect[y="12"][x="11"] { animation-delay: -.15s; }
+.bubble {
+  position: absolute;
+  z-index: 5;
+  bottom: calc(100% + 12px);
+  left: var(--bubble-left);
+  width: var(--bubble-width);
+  padding: 8px 9px;
+  border: 1px solid #a1a1aa;
+  background: var(--bubble-paper);
+  color: #52525b;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.45;
+  opacity: 0;
+  animation: speakClaude var(--cycle-duration) linear infinite;
+}
+.bubble::after {
+  position: absolute;
+  bottom: -5px;
+  left: var(--tail-left);
+  width: 8px;
+  height: 8px;
+  border-right: 1px solid #a1a1aa;
+  border-bottom: 1px solid #a1a1aa;
+  background: var(--bubble-paper);
+  content: "";
+  transform: rotate(45deg);
+}
+.walker[data-agent="chatgpt"] .bubble { animation-name: speakChatgpt; }
+.walker, .bubble, .desk {
+  animation-delay: var(--phase-delay);
+  animation-play-state: var(--animation-state);
+}
+.scene[data-paused="true"] .robot rect,
+.scene[data-paused="true"] .desk [data-terminal-code],
+.scene[data-paused="true"] .desk [data-terminal-cursor] { animation-play-state: paused; }
+
+.control {
+  position: relative;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 28px;
+  width: max-content;
+  padding: 4px 0 4px 8px;
+  border: 0;
+  background: transparent;
+  color: #71717a;
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 1.2;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color 150ms ease;
+}
+.control:hover { color: #18181b; }
+.control:focus-visible { outline: 2px solid #52525b; outline-offset: 3px; }
+.control:disabled { cursor: default; }
+.controlIcon { display: block; width: 10px; font-size: 11px; text-align: center; }
+
+/* Work at a real desk, walk around its edge, confer, then retrace the route.
+   Outbound walks take about six seconds instead of the old 15–18 seconds. */
+@keyframes travelClaude {
+  0%, 12%, 78%, 100% { transform: translate(var(--home-x), var(--home-y)); }
+  20%, 70% { transform: translate(var(--aisle-x), var(--home-y)); }
+  30%, 60% { transform: translate(var(--aisle-x), var(--meet-y)); }
+  33%, 57% { transform: translate(var(--meet-x), var(--meet-y)); }
+}
+@keyframes travelChatgpt {
+  0%, 14%, 81%, 100% { transform: translate(var(--home-x), var(--home-y)); }
+  22%, 73% { transform: translate(var(--aisle-x), var(--home-y)); }
+  31%, 63% { transform: translate(var(--aisle-x), var(--meet-y)); }
+  34%, 60% { transform: translate(var(--meet-x), var(--meet-y)); }
+}
+@keyframes strideClaude {
+  0%, 33%, 78%, 100% { --stride-amount: 0; }
+  12%, 57% { --stride-amount: 1; }
+}
+@keyframes strideChatgpt {
+  0%, 34%, 81%, 100% { --stride-amount: 0; }
+  14%, 60% { --stride-amount: 1; }
+}
+@keyframes workClaude {
+  0%, 78%, 100% { --work-state: running; --work-opacity: 1; --face-opacity: 0; }
+  12% { --work-state: paused; --work-opacity: 0; --face-opacity: 1; }
+}
+@keyframes workChatgpt {
+  0%, 81%, 100% { --work-state: running; --work-opacity: 1; --face-opacity: 0; }
+  14% { --work-state: paused; --work-opacity: 0; --face-opacity: 1; }
+}
+@keyframes footstep {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(calc(-.45px * var(--stride-amount))); }
+}
+@keyframes typing {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(calc(-.4px * var(--work-opacity))); }
+}
+@keyframes terminalCode {
+  0%, 100% { opacity: .4; }
+  50% { opacity: calc(.4 + .6 * var(--work-opacity)); }
+}
+@keyframes terminalCursor {
+  0%, 49% { opacity: var(--work-opacity); }
+  50%, 100% { opacity: 0; }
+}
+@keyframes speakClaude {
+  0%, 35%, 45%, 100% { opacity: 0; }
+  36%, 44% { opacity: 1; }
+}
+@keyframes speakChatgpt {
+  0%, 46%, 56%, 100% { opacity: 0; }
+  47%, 55% { opacity: 1; }
+}
+
+@media (max-width: 1199px) {
+  .scene, .control { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene * { animation: none !important; }
+  .walker { transform: translate(var(--home-x), var(--home-y)); }
+  .control { transition: none; }
+}

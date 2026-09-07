@@ -55,7 +55,15 @@ export function PixelRobot({
       {PIXELS.map((row, y) =>
         row.split("").map((cell, x) =>
           cell === "X" ? (
-            <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill="currentColor" />
+            <rect
+              key={`${x}-${y}`}
+              x={x}
+              y={y}
+              width="1"
+              height="1"
+              fill="currentColor"
+              data-robot-face={((y === 3 || y === 4) && [4, 5, 8, 9].includes(x)) || (y === 6 && x >= 5 && x <= 8) ? "" : undefined}
+            />
           ) : null,
         ),
       )}

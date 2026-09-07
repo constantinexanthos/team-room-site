@@ -1,154 +1,247 @@
 "use client";
 
-/**
- * WalkingRobots — the hero scene. Two pixel robots enter from opposite
- * sides of a contained area, meet in the middle, exchange chunky retro
- * speech bubbles, then walk back out and loop. Pure React state +
- * Tailwind transitions; no external animation libs.
- *
- * Beats per cycle (~13s):
- *   0.0s  intro       robots offscreen, then walk in (2.4s CSS transition)
- *   2.8s  claude-1    claude bubble: "I think (c) deep integrations."
- *   5.3s  chatgpt-1   chatgpt bubble: "Yes. The kind that observes outcomes."
- *   7.8s  claude-2    claude bubble: "Right, the data exhaust compounds."
- *   10.3s outro       robots walk back to edges and loop
- */
-
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { PixelRobot } from "@/components/pixel-robot";
+import { OfficeDesk } from "@/components/office-props";
+import styles from "./walking-robots.module.css";
 
-type Beat = "intro" | "claude-1" | "chatgpt-1" | "claude-2" | "outro";
+type Agent = "claude" | "chatgpt";
+type Side = "left" | "right";
+type Layout = {
+  width: number;
+  contentLeft: number;
+  contentRight: number;
+  lowerTop: number;
+  controls: HTMLElement | null;
+};
+type Point = { x: number; y: number };
 
-const SCHEDULE: { beat: Beat; ms: number }[] = [
-  { beat: "intro", ms: 0 },
-  { beat: "claude-1", ms: 2800 },
-  { beat: "chatgpt-1", ms: 5300 },
-  { beat: "claude-2", ms: 7800 },
-  { beat: "outro", ms: 10300 },
-];
-const CYCLE_MS = 13500;
+const ROOMS = [
+  { id: "upper-left", side: "left", lower: false, duration: 28, delay: -2, messages: ["Cache the API response?", "Key it by user ID."] },
+  { id: "upper-right", side: "right", lower: false, duration: 30, delay: -11, messages: ["This effect runs twice.", "Check the cleanup hook."] },
+  { id: "lower-left", side: "left", lower: true, duration: 32, delay: -25, messages: ["Retries duplicate writes.", "Add an idempotency key."] },
+  { id: "lower-right", side: "right", lower: true, duration: 29, delay: -7, messages: ["The query scans every row.", "Index the foreign key."] },
+] as const;
 
-const TALKING_BEATS: Beat[] = ["claude-1", "chatgpt-1", "claude-2"];
+function subscribeToEnvironment(onChange: () => void) {
+  const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  preference.addEventListener("change", onChange);
+  document.addEventListener("visibilitychange", onChange);
+  return () => {
+    preference.removeEventListener("change", onChange);
+    document.removeEventListener("visibilitychange", onChange);
+  };
+}
 
+function getEnvironmentSnapshot() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return "reduced";
+  return document.hidden ? "hidden" : "active";
+}
+
+function getServerSnapshot() { return "active"; }
+
+/** Quiet office activity lives entirely outside the reading column. */
 export function WalkingRobots() {
-  const [beat, setBeat] = useState<Beat>("intro");
-  const [cycle, setCycle] = useState(0);
+  const world = useRef<HTMLDivElement>(null);
+  const [layout, setLayout] = useState<Layout | null>(null);
+  const [userPaused, setUserPaused] = useState(false);
+  const environment = useSyncExternalStore(subscribeToEnvironment, getEnvironmentSnapshot, getServerSnapshot);
+  const reducedMotion = environment === "reduced";
+  const paused = userPaused || environment !== "active";
 
   useEffect(() => {
-    const timers = SCHEDULE.map(({ beat, ms }) =>
-      setTimeout(() => setBeat(beat), ms),
-    );
-    const loopTimer = setTimeout(() => setCycle((c) => c + 1), CYCLE_MS);
-    return () => {
-      timers.forEach(clearTimeout);
-      clearTimeout(loopTimer);
+    const page = world.current?.closest<HTMLElement>(".room-page");
+    const content = page?.querySelector<HTMLElement>(".room-content");
+    if (!page || !content) return;
+    let frame = 0;
+    let disposed = false;
+    const measure = () => {
+      if (disposed) return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const pageRect = page.getBoundingClientRect();
+        const contentRect = content.getBoundingClientRect();
+        const sections = content.querySelectorAll<HTMLElement>(".room-section");
+        const lowerSection = sections[3] ?? sections[1];
+        const lowerTop = Math.max(900, Math.round((lowerSection?.getBoundingClientRect().top ?? pageRect.top + 1500) - pageRect.top + 48));
+        const next = {
+          width: Math.round(pageRect.width),
+          contentLeft: contentRect.left - pageRect.left,
+          contentRight: contentRect.right - pageRect.left,
+          lowerTop,
+          controls: page.querySelector<HTMLElement>("[data-room-controls]"),
+        };
+        setLayout((previous) => {
+          if (previous?.width === next.width && previous.contentLeft === next.contentLeft &&
+            previous.contentRight === next.contentRight && previous.lowerTop === next.lowerTop &&
+            previous.controls === next.controls) return previous;
+          return next;
+        });
+      });
     };
-  }, [cycle]);
+    const observer = new ResizeObserver(measure);
+    observer.observe(page);
+    observer.observe(content);
+    window.addEventListener("resize", measure);
+    document.fonts.ready.then(measure);
+    measure();
+    return () => {
+      disposed = true;
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
 
-  const inMiddle = TALKING_BEATS.includes(beat);
-
-  // Position math: edges are -10% (offscreen), middle is 32% from each side.
-  const claudeLeft = beat === "intro" ? "-10%" : inMiddle ? "32%" : "-10%";
-  const chatgptRight = beat === "intro" ? "-10%" : inMiddle ? "32%" : "-10%";
+  // A minimum 16 px clear gap separates every prop and speech bubble from
+  // the complete content box, including its existing reading-column padding.
+  const sideSpace = layout ? Math.min(layout.contentLeft, layout.width - layout.contentRight) : 0;
+  const visible = !!layout && layout.width >= 1200 && sideSpace >= 136;
+  const railWidth = Math.min(200, sideSpace - 32);
+  const control = (
+    <button
+      type="button"
+      className={styles.control}
+      aria-controls="team-room-landscape"
+      aria-pressed={userPaused || reducedMotion}
+      disabled={reducedMotion}
+      title={reducedMotion ? "Your device’s reduced motion setting pauses the scene." : undefined}
+      onClick={() => setUserPaused((value) => !value)}
+    >
+      <span className={styles.controlIcon} aria-hidden="true">{userPaused || reducedMotion ? "▶" : "Ⅱ"}</span>
+      {reducedMotion ? "Motion reduced" : userPaused ? "Resume scene" : "Pause scene"}
+    </button>
+  );
 
   return (
-    <div className="relative w-full overflow-hidden border-2 border-zinc-900 bg-zinc-50">
-      {/* Subtle dotted-grid floor pattern */}
+    <>
       <div
-        aria-hidden
-        className="absolute inset-0 opacity-40"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 50% 50%, #d4d4d8 1px, transparent 1px)",
-          backgroundSize: "16px 16px",
-        }}
-      />
-
-      <div className="relative h-52 sm:h-56">
-        {/* Ground line — pixel-style dashed */}
-        <div className="absolute bottom-7 left-0 right-0 h-0.5 bg-zinc-900" />
-
-        {/* Claude */}
-        <div
-          className="absolute bottom-8 text-zinc-950 transition-[left] duration-[2400ms] ease-linear"
-          style={{ left: claudeLeft }}
-        >
-          <PixelRobot size={64} agent="claude" animated />
-        </div>
-
-        {/* ChatGPT */}
-        <div
-          className="absolute bottom-8 text-zinc-950 transition-[right] duration-[2400ms] ease-linear"
-          style={{ right: chatgptRight }}
-        >
-          <PixelRobot size={64} agent="chatgpt" animated />
-        </div>
-
-        {/* Speech bubbles — appear above the speaking robot */}
-        <Bubble visible={beat === "claude-1"} side="left" agent="claude">
-          I think (c) deep integrations.
-        </Bubble>
-        <Bubble visible={beat === "chatgpt-1"} side="right" agent="chatgpt">
-          Yes. Specifically the kind that observes outcomes.
-        </Bubble>
-        <Bubble visible={beat === "claude-2"} side="left" agent="claude">
-          Right. The data exhaust compounds.
-        </Bubble>
+        ref={world}
+        id="team-room-landscape"
+        className={styles.scene}
+        data-room-scene
+        data-paused={paused}
+        aria-hidden="true"
+      >
+        {visible && ROOMS.map((room) => (
+          <SideRoom
+            key={room.id}
+            id={room.id}
+            side={room.side}
+            left={room.side === "left"
+              ? (layout.contentLeft - railWidth) / 2
+              : layout.contentRight + (layout.width - layout.contentRight - railWidth) / 2}
+            top={room.lower ? layout.lowerTop : 120}
+            width={railWidth}
+            duration={room.duration}
+            delay={room.delay}
+            messages={room.messages}
+          />
+        ))}
       </div>
+      {visible && layout.controls && createPortal(control, layout.controls)}
+    </>
+  );
+}
 
-      <style>{`
-        @keyframes tr-bubble-pop {
-          0% { transform: scale(0.6) translateY(4px); opacity: 0; }
-          60% { transform: scale(1.04) translateY(0); opacity: 1; }
-          100% { transform: scale(1) translateY(0); opacity: 1; }
-        }
-      `}</style>
+function SideRoom({ id, side, left, top, width, duration, delay, messages }: {
+  id: string;
+  side: Side;
+  left: number;
+  top: number;
+  width: number;
+  duration: number;
+  delay: number;
+  messages: readonly [string, string];
+}) {
+  const size = 36;
+  // Leave a full walking aisle beside each desk, even in the narrowest rail.
+  const deskWidth = Math.min(88, width - size - 12);
+  const deskHeight = deskWidth * 100 / 130;
+  const desks = [
+    { x: 0, y: 0 },
+    { x: width - deskWidth, y: 340 },
+  ];
+  const homes = desks.map((desk) => ({
+    x: desk.x + deskWidth / 2 - size / 2,
+    y: desk.y + deskHeight + 4,
+  }));
+  const meetings = [
+    { x: width / 2 + 7, y: 194 },
+    { x: width / 2 - 43, y: 201 },
+  ];
+  // Outbound paths: leave the chair horizontally, follow the clear aisle,
+  // then approach the partner. The return traces that same path in reverse.
+  const aisles = [width - size - 4, 4];
+  const variables = {
+    left,
+    top,
+    width,
+    height: 470,
+    "--cycle-duration": `${duration}s`,
+    "--phase-delay": `${delay}s`,
+  } as CSSProperties;
+
+  return (
+    <div className={styles.sideRoom} data-side-room={id} data-side={side} style={variables}>
+      {(["claude", "chatgpt"] as const).map((agent, index) => (
+        <div key={agent}>
+          <div
+            className={styles.desk}
+            data-desk={agent}
+            style={{ left: desks[index].x, top: desks[index].y, width: deskWidth }}
+          >
+            <OfficeDesk agent={agent} />
+          </div>
+          <span
+            className={styles.chair}
+            style={{ left: homes[index].x + 8, top: homes[index].y + 18 }}
+          />
+          <Walker
+            agent={agent}
+            message={messages[index]}
+            home={homes[index]}
+            meeting={meetings[index]}
+            aisle={aisles[index]}
+            width={width}
+            size={size}
+          />
+        </div>
+      ))}
     </div>
   );
 }
 
-function Bubble({
-  children,
-  side,
-  agent,
-  visible,
-}: {
-  children: React.ReactNode;
-  side: "left" | "right";
-  agent: "claude" | "chatgpt";
-  visible: boolean;
+function Walker({ agent, message, home, meeting, aisle, width, size }: {
+  agent: Agent;
+  message: string;
+  home: Point;
+  meeting: Point;
+  aisle: number;
+  width: number;
+  size: number;
 }) {
-  if (!visible) return null;
-  const bg = agent === "claude" ? "bg-amber-100" : "bg-emerald-100";
-  const tailColor = agent === "claude" ? "#fef3c7" : "#d1fae5";
-  // Positioning: claude in middle is at 32% from left, so claude bubble at
-  // roughly 18% from left. Chatgpt mirror.
-  const positionStyle =
-    side === "left"
-      ? { left: "10%", maxWidth: "44%" }
-      : { right: "10%", maxWidth: "44%" };
+  const bubbleWidth = Math.min(148, width);
+  const bubbleLeft = (width - bubbleWidth) / 2 - meeting.x;
+  const variables = {
+    width: size,
+    height: size * 16 / 14,
+    "--home-x": `${home.x}px`,
+    "--home-y": `${home.y}px`,
+    "--aisle-x": `${aisle}px`,
+    "--meet-x": `${meeting.x}px`,
+    "--meet-y": `${meeting.y}px`,
+    "--bubble-width": `${bubbleWidth}px`,
+    "--bubble-left": `${bubbleLeft}px`,
+    "--tail-left": `${size / 2 - bubbleLeft - 4}px`,
+  } as CSSProperties;
 
   return (
-    <div
-      className={`absolute top-4 ${bg} border-2 border-zinc-900 px-3 py-2`}
-      style={{
-        ...positionStyle,
-        animation: "tr-bubble-pop 240ms cubic-bezier(0.16, 1, 0.3, 1) both",
-      }}
-    >
-      <div className="text-[12px] font-medium leading-snug text-zinc-900 sm:text-sm">
-        {children}
-      </div>
-      {/* Pixel-style tail pointing down to the robot */}
-      <div
-        aria-hidden
-        className="absolute -bottom-2 size-4 border-b-2 border-r-2 border-zinc-900"
-        style={{
-          backgroundColor: tailColor,
-          transform: "rotate(45deg)",
-          [side === "left" ? "left" : "right"]: "1.25rem",
-        }}
-      />
+    <div className={styles.walker} data-agent={agent} style={variables}>
+      <span className={styles.shadow} />
+      <PixelRobot size={size} agent={agent} className={styles.robot} />
+      <div className={styles.bubble}><span>{message}</span></div>
     </div>
   );
 }

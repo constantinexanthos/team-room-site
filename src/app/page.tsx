@@ -3,57 +3,49 @@ import { InstallSnippet } from "@/components/install-snippet";
 import { GithubIcon } from "@/components/icons";
 import { PixelRobot } from "@/components/pixel-robot";
 import { WalkingRobots } from "@/components/walking-robots";
+import { ModelLogo } from "@/components/model-logo";
 
 const INSTALL_STEPS = [
   "/plugin marketplace add constantinexanthos/team-room",
   "/plugin install team-room@team-room",
 ];
 
-// Retro-gamer aesthetic. Wider container, chunky 2px borders, game-style
-// stat bars, two pixel robots (one per agent), an inside/outside view of
-// what a session actually feels like. One font (Inter) everywhere, mono
-// only inside code/terminal blocks. No em-dashes. No italics.
+// The original plugin page; the ambient scene stays in the side margins.
 
 export default function HomePage() {
   return (
-    <div className="min-h-dvh bg-white text-zinc-900">
+    <div className="room-page min-h-dvh bg-white text-zinc-900">
+      <a className="room-skip-link" href="#main-content">Skip to content</a>
       <SiteHeader />
+      <WalkingRobots />
 
-      <main className="mx-auto max-w-4xl px-5 sm:px-8">
+      <main id="main-content" className="room-content">
         {/* ── HERO ──────────────────────────────────────────────── */}
-        <section className="pt-12 pb-16 sm:pt-16 sm:pb-20">
-          {/* The animated walking-robots scene — full width of the hero */}
-          <WalkingRobots />
-
-          <div className="mt-10 sm:mt-12">
-            <h1 className="text-5xl font-bold leading-[0.95] tracking-tight text-zinc-950 sm:text-6xl">
-              Team Room
-            </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-zinc-700 sm:text-xl">
+        <section className="room-hero">
+          <div className="room-hero-copy" data-room-obstacle>
+            <h1 className="room-title">Team Room</h1>
+            <p className="room-intro">
               A Claude Code plugin that puts{" "}
               <Agent color="amber">Claude</Agent> and{" "}
               <Agent color="emerald">ChatGPT</Agent> in one room. They
               deliberate on hard questions together, and return one
               structured brief.
             </p>
-            <div className="mt-8">
+            <div className="room-install">
               <InstallSnippet commands={INSTALL_STEPS} />
             </div>
-            <p className="mt-3 text-xs text-zinc-500">
-              Two steps. Run both inside any Claude Code session.{" "}
-              <Link
-                href="/docs"
-                className="text-zinc-700 underline underline-offset-4 decoration-zinc-300 hover:decoration-zinc-700"
-              >
-                Full install guide
-              </Link>
-              .
-            </p>
+            <div className="room-install-meta">
+              <p className="room-install-note">
+                Two steps. Run both inside any Claude Code session.{" "}
+                <Link href="/docs">Full install guide</Link>.
+              </p>
+              <div data-room-controls className="room-controls" />
+            </div>
           </div>
         </section>
 
         {/* ── HOW IT WORKS: simple visual flow ──────────────────── */}
-        <section className="border-t-2 border-zinc-900 py-16 sm:py-20">
+        <section className="room-section border-t-2 border-zinc-900 py-16 sm:py-20" data-room-obstacle>
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-900">
             How it works
           </h2>
@@ -75,7 +67,7 @@ export default function HomePage() {
         </section>
 
         {/* ── STAT BARS: game-style ─────────────────────────────── */}
-        <section className="border-t-2 border-zinc-900 py-16 sm:py-20">
+        <section className="room-section border-t-2 border-zinc-900 py-16 sm:py-20" data-room-obstacle>
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-900">
             The numbers
           </h2>
@@ -113,7 +105,7 @@ export default function HomePage() {
         </section>
 
         {/* ── WHY TEAM ROOM vs alternatives ─────────────────────── */}
-        <section className="border-t-2 border-zinc-900 py-16 sm:py-20">
+        <section className="room-section border-t-2 border-zinc-900 py-16 sm:py-20" data-room-obstacle>
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-900">
             Why Team Room
           </h2>
@@ -172,7 +164,7 @@ export default function HomePage() {
         </section>
 
         {/* ── WHAT A SESSION LOOKS LIKE: outside vs inside ──────── */}
-        <section className="border-t-2 border-zinc-900 py-16 sm:py-20">
+        <section className="room-section border-t-2 border-zinc-900 py-16 sm:py-20" data-room-obstacle>
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-900">
             What a session looks like
           </h2>
@@ -251,7 +243,7 @@ reverts).`}
         </section>
 
         {/* ── WHAT TO ASK IT ───────────────────────────────────── */}
-        <section className="border-t-2 border-zinc-900 py-16 sm:py-20">
+        <section className="room-section border-t-2 border-zinc-900 py-16 sm:py-20" data-room-obstacle>
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-900">
             What to ask it
           </h2>
@@ -283,7 +275,7 @@ reverts).`}
         </section>
 
         {/* ── A NOTE ───────────────────────────────────────────── */}
-        <section className="border-t-2 border-zinc-900 py-16 sm:py-20">
+        <section className="room-section border-t-2 border-zinc-900 py-16 sm:py-20" data-room-obstacle>
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-900">
             A note
           </h2>
@@ -300,7 +292,7 @@ reverts).`}
         </section>
 
         {/* ── INSTALL ───────────────────────────────────────────── */}
-        <section className="border-t-2 border-zinc-900 py-16 sm:py-20">
+        <section className="room-section border-t-2 border-zinc-900 py-16 sm:py-20" data-room-obstacle>
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-900">
             Install
           </h2>
@@ -362,8 +354,8 @@ reverts).`}
 
 function SiteHeader() {
   return (
-    <header className="border-b-2 border-zinc-900">
-      <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-4 sm:px-8 sm:py-5">
+    <header className="room-header border-b border-zinc-900">
+      <div className="room-header-inner">
         <Link
           href="/"
           aria-label="Team Room home"
@@ -375,7 +367,7 @@ function SiteHeader() {
           </span>
           <span className="text-xl font-bold tracking-tight">Team Room</span>
         </Link>
-        <nav className="flex items-center gap-5 text-xs font-bold tracking-[0.2em] text-zinc-500">
+        <nav aria-label="Main navigation" className="flex items-center gap-5 text-xs font-bold tracking-[0.2em] text-zinc-500">
           <Link href="/docs" className="hover:text-zinc-900 transition-colors">
             DOCS
           </Link>
@@ -403,12 +395,9 @@ function Agent({
   children: React.ReactNode;
   color: "amber" | "emerald";
 }) {
-  const dotClass = color === "amber" ? "bg-amber-500" : "bg-emerald-500";
   return (
-    <span className="inline-flex items-baseline gap-1.5">
-      <span
-        className={`inline-block size-2 translate-y-[-1px] rounded-full ${dotClass}`}
-      />
+    <span className="room-model-name">
+      <ModelLogo agent={color === "amber" ? "claude" : "chatgpt"} size={18} />
       {children}
     </span>
   );
